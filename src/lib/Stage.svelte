@@ -86,7 +86,7 @@
       if (node.movement.y > 0) node.movement.y -= 0.1;
 
       cx.beginPath();
-      cx.arc(node.x, node.y, $springedRs[idx], 0, 2 * Math.PI, false);
+      cx.arc(node.x, node.y, r > 0 ? r : 0, 0, 2 * Math.PI, false);
       cx.fillStyle = node.color;
 
       cx.fill();
