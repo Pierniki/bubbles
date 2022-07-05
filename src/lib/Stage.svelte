@@ -1,8 +1,13 @@
 <script lang="ts">
+  import { bubbleStore, RegisteredBubble } from '../stores/bubbleStore';
+
   import { onMount } from 'svelte';
   import { spring } from 'svelte/motion';
+  import { minmax } from './utility';
 
-  interface Node {
+  export let currentBubble: RegisteredBubble;
+
+  interface Circle {
     x: number;
     y: number;
     r: number;
@@ -12,22 +17,37 @@
   export let height: number;
   let canvas: HTMLCanvasElement | undefined = undefined;
 
-  const randomBetween = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-
   let mousePosition = {
     x: 0,
     y: 0
   };
 
-  const colors = ['#49cc6c', '#ccab49', '#cc4949', '#49bbcc', '#7d49cc'];
-  let nodes = colors.map((color) => ({
-    x: randomBetween(width / 3, (width / 3) * 2),
-    y: randomBetween(height / 3, (height / 3) * 2),
-    r: randomBetween(50, 200),
-    weight: randomBetween(3, 5) * 0.2,
-    color: color,
-    movement: { x: 0, y: 0 }
-  }));
+  let hoveringOn: string | null = null;
+
+  $: images = currentBubble.children.map((child) => {
+    const bubble = bubbleStore.getBubbleByName(child);
+    if (!bubble || !bubble.bgImage) return null;
+    const img = new Image();
+    img.src = bubble.bgImage;
+    return img;
+  });
+
+  let nodes = currentBubble.children
+    .map((child) => {
+      const bubble = bubbleStore.getBubbleByName(child);
+      if (!bubble) return null;
+
+      return {
+        name: bubble.name,
+        x: bubble.position.w * width,
+        y: bubble.position.h * height,
+        color: bubble.color,
+        weight: bubble.weight,
+        bgImage: bubble.bgImage,
+        movement: { x: 0, y: 0 }
+      };
+    })
+    .filter((node): node is NonNullable<typeof node> => node !== null);
 
   const springedMovement = spring(
     nodes.map((node) => node.movement),
@@ -45,25 +65,17 @@
   );
 
   onMount(() => {
+    if (!canvas) return;
     const cx = canvas.getContext('2d');
-    window.requestAnimationFrame(() => drawCircles(canvas, cx));
+    if (!cx) return;
+    window.requestAnimationFrame(() => drawCircles(canvas!, cx));
   });
-
-  const minmax = ({ min, max, val }: { min?: number; max?: number; val?: number }) => {
-    if (min !== undefined && val < min) return min;
-    if (max !== undefined && val > max) return max;
-    return val;
-  };
 
   const drawCircles = (canvas: HTMLCanvasElement, cx: CanvasRenderingContext2D) => {
     cx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let isHovering = nodes.map(() => false);
+    let hoveringOnList = nodes.map(() => false);
     nodes.forEach((node, idx) => {
-      //   if (idx === 1) {
-      //     node.x = mousePosition.x;
-      //     node.y = mousePosition.y;
-      //   }
       const r = $springedRs[idx];
       const movements = nodes
         .map((node, idx) => ({ ...node, r: $springedRs[idx] }))
@@ -88,37 +100,78 @@
       cx.beginPath();
       cx.arc(node.x, node.y, r > 0 ? r : 0, 0, 2 * Math.PI, false);
       cx.fillStyle = node.color;
-
       cx.fill();
-      isHovering[idx] = cx.isPointInPath(mousePosition.x, mousePosition.y);
+      hoveringOnList[idx] = cx.isPointInPath(mousePosition.x, mousePosition.y);
+      cx.closePath();
+
+      const img = images[idx];
+      if (node.bgImage && img) {
+        const aspectRatio = img.width / img.height;
+        const horizontal = img.width >= img.height;
+        const imgW = horizontal ? r * 2 * aspectRatio : r * 2;
+        const imgH = horizontal ? r * 2 : (r * 2) / aspectRatio;
+        cx.save();
+        cx.beginPath();
+        cx.arc(node.x, node.y, r > 0 ? r : 0, 0, Math.PI * 2, true);
+
+        cx.closePath();
+        cx.clip();
+
+        cx.drawImage(img, node.x - imgW / 2, node.y - imgH / 2, imgW, imgH);
+
+        cx.restore();
+      }
+
+      const fontSize = (2 * r) / node.name.length;
+      cx.font = `bold ${fontSize}px Courier `;
+      cx.textAlign = 'center';
+
+      cx.fillStyle = 'black';
+      cx.fillText(node.name, node.x + fontSize / 10, node.y + fontSize / 5);
+      cx.fillStyle = 'white';
+      cx.fillText(node.name, node.x, node.y + fontSize / 5);
 
       cx.closePath();
     });
 
+    const hoveringOnIdx = nodes.reduce((closest, node, idx) => {
+      if (!hoveringOnList[idx]) return closest;
+      if (closest === -1) return idx;
+      if (distance(node, mousePosition) < distance(nodes[closest], mousePosition)) return idx;
+      return closest;
+    }, -1);
+    hoveringOn = hoveringOnIdx >= 0 ? nodes[hoveringOnIdx].name : null;
+
     springedMovement.set(nodes.map((node) => node.movement));
     springedRs.set(
       nodes.map((node, idx) => {
-        const base = Math.sqrt(width) * node.weight * 6;
-        return isHovering[idx] ? base + 50 : base;
+        const base = ((Math.sqrt(width) + Math.sqrt(height)) / 2) * node.weight * 6;
+        return idx === hoveringOnIdx ? base * 1.1 : base;
       })
     );
 
     window.requestAnimationFrame(() => drawCircles(canvas, cx));
   };
 
-  const movement = (a: Node, b: Node) => {
+  const movement = (a: Circle, b: Circle) => {
     const dist = distance(a, b);
-    if (dist < a.r + b.r) return { x: (b.x - a.x) / -50, y: (b.y - a.y) / -50 };
+    if (dist < a.r / b.r) return { x: (10 + (b.x - a.x)) / -25, y: (10 + (b.y - a.y)) / 25 };
+    if (dist < a.r + b.r) return { x: (5 + (b.x - a.x)) / -50, y: (5 + (b.y - a.y)) / -50 };
     return { x: 0, y: 0 };
   };
 
-  const distance = (a: Node, b: Node) => Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+  const distance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+    Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
 </script>
 
 <canvas
   bind:this={canvas}
   {height}
   {width}
-  class="  bg-slate-800"
+  style:cursor={hoveringOn ? 'pointer' : 'default'}
+  on:click={() => {
+    if (!hoveringOn) return;
+    bubbleStore.navigateToBubble(hoveringOn);
+  }}
   on:mousemove={(e) => (mousePosition = { x: e.clientX, y: e.clientY - 100 })}
 />
