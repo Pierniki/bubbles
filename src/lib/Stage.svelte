@@ -171,7 +171,9 @@
   style:cursor={hoveringOn ? 'pointer' : 'default'}
   on:click={() => {
     if (!hoveringOn) return;
-    bubbleStore.navigateToBubble(hoveringOn);
+    console.log(hoveringOn.replace(' ', '_'));
+    window.location.hash = `#${hoveringOn.replace(' ', '_')}`;
+    // bubbleStore.navigateToBubble(hoveringOn);
   }}
   on:mousemove={(e) => (mousePosition = { x: e.clientX, y: e.clientY - 100 })}
 />

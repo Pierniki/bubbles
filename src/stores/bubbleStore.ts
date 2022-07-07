@@ -14,6 +14,7 @@ export interface ConfigBubble {
 }
 
 export interface RegisteredBubble {
+  parent: string | null;
   name: string;
   color: string;
   weight: number;
@@ -39,26 +40,37 @@ function createBubbleStore() {
     .then((result: ConfigBubble) => {
       let bubblesList: RegisteredBubble[] = [];
 
-      const registerBubble = (bubble: ConfigBubble) => {
+      const registerBubble = (bubble: ConfigBubble, parent: string | null) => {
         bubblesList.push({
           ...bubble,
+          parent,
           bgImage: bubble.bgImage ?? null,
           children: bubble.children.map((child) => child.name)
         });
-        bubble.children.forEach(registerBubble);
+        bubble.children.forEach((bub) => registerBubble(bub, bubble.name));
       };
 
-      registerBubble(result);
+      registerBubble(result, null);
 
       const bubblesDictionary = _.keyBy(bubblesList, 'name');
-      set({ currentBubble: result.name, bubbles: bubblesDictionary });
+      set({ currentBubble: window.location.hash.split('#')[1] ?? result.name, bubbles: bubblesDictionary });
     });
 
   return {
     subscribe,
     navigateToBubble: (name: string) => update((prev) => ({ ...prev, currentBubble: name })),
     getBubbleByName: (name: string): RegisteredBubble | null => get(store).bubbles[name],
-    getCurrentBubble: (): RegisteredBubble | null => get(store).bubbles[get(store).currentBubble]
+    getCurrentBubble: (): RegisteredBubble | null => get(store).bubbles[get(store).currentBubble],
+    getBubbleBreadcrumbs: (name: string, breadcrumbs: string[] = []) => {
+      const dig = (name: string, breadcrumbs: string[] = []): string[] => {
+        const bubbles = get(store).bubbles;
+        const bubble = bubbles[name];
+        if (!bubble) return breadcrumbs;
+        if (bubble.parent) return dig(bubble.parent, [...breadcrumbs, bubble.name]);
+        return [...breadcrumbs, bubble.name];
+      };
+      return dig(name, breadcrumbs);
+    }
   };
 }
 
