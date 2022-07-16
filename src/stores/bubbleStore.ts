@@ -1,77 +1,54 @@
-import _ from 'lodash';
-import { get, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 
-export interface ConfigBubble {
+interface Node {
   name: string;
   color: string;
-  weight: number;
-  position: {
-    w: number;
-    h: number;
-  };
-  bgImage?: string;
-  children: ConfigBubble[];
-}
-
-export interface RegisteredBubble {
-  parent: string | null;
-  name: string;
-  color: string;
-  weight: number;
-  position: {
-    w: number;
-    h: number;
-  };
-  bgImage: string | null;
   children: string[];
 }
 
-interface BubbleStore {
-  currentBubble: string;
-  bubbles: _.Dictionary<RegisteredBubble>;
+interface ConfigLink {
+  source: string;
+  target: string;
 }
 
-function createBubbleStore() {
-  const store = writable<BubbleStore>({ currentBubble: '', bubbles: {} });
-  const { subscribe, set, update } = store;
-
-  fetch('nodes.json')
-    .then((res) => res.json())
-    .then((result: ConfigBubble) => {
-      let bubblesList: RegisteredBubble[] = [];
-
-      const registerBubble = (bubble: ConfigBubble, parent: string | null) => {
-        bubblesList.push({
-          ...bubble,
-          parent,
-          bgImage: bubble.bgImage ?? null,
-          children: bubble.children.map((child) => child.name)
-        });
-        bubble.children.forEach((bub) => registerBubble(bub, bubble.name));
-      };
-
-      registerBubble(result, null);
-
-      const bubblesDictionary = _.keyBy(bubblesList, 'name');
-      set({ currentBubble: window.location.hash.split('#')[1] ?? result.name, bubbles: bubblesDictionary });
-    });
-
-  return {
-    subscribe,
-    navigateToBubble: (name: string) => update((prev) => ({ ...prev, currentBubble: name })),
-    getBubbleByName: (name: string): RegisteredBubble | null => get(store).bubbles[name],
-    getCurrentBubble: (): RegisteredBubble | null => get(store).bubbles[get(store).currentBubble],
-    getBubbleBreadcrumbs: (name: string, breadcrumbs: string[] = []) => {
-      const dig = (name: string, breadcrumbs: string[] = []): string[] => {
-        const bubbles = get(store).bubbles;
-        const bubble = bubbles[name];
-        if (!bubble) return breadcrumbs;
-        if (bubble.parent) return dig(bubble.parent, [...breadcrumbs, bubble.name]);
-        return [...breadcrumbs, bubble.name];
-      };
-      return dig(name, breadcrumbs);
-    }
+interface Link {
+  source: {
+    name: string;
+    index: number;
+  };
+  target: {
+    name: string;
+    index: number;
   };
 }
+
+interface BubbleStore {
+  nodes: Node[];
+  links: Link[];
+}
+
+const createBubbleStore = () => {
+  const store = writable<BubbleStore>({ nodes: [], links: [] });
+  const { subscribe } = store;
+
+  fetchNodes()
+    .then((nodes) => {
+      store.update((prev) => ({ ...prev, nodes }));
+      return nodes;
+    })
+    .then((nodes) => {
+      fetchLinks().then((configLinks) => {
+        const links = configLinks.map((link) => ({
+          source: { index: nodes.findIndex((node) => node.name === link.source), name: link.source },
+          target: { index: nodes.findIndex((node) => node.name === link.target), name: link.target }
+        }));
+        store.update((prev) => ({ ...prev, links }));
+      });
+    });
+  return { subscribe };
+};
+
+const fetchNodes = (): Promise<Node[]> => fetch('nodes.json').then((res) => res.json());
+const fetchLinks = (): Promise<ConfigLink[]> => fetch('stories.json').then((res) => res.json());
 
 export const bubbleStore = createBubbleStore();
