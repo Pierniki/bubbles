@@ -1,172 +1,70 @@
-{
-    "name": "Home",
-    "color": "#354259",
-    "children": [
-        {
-            "name": "About",
-            "color": "#C2DED1",
-            "weight": 1,
-            "position": {
-                "w": 0.5,
-                "h": 0.5
-            },
-            "children": [
-                {
-                    "name": "Neuron Crafts",
-                    "color": "#ECE5C7",
-                    "weight": 1,
-                    "position": {
-                        "w": 0.5,
-                        "h": 0.5
-                    },
-                    "children": []
-                },
-                {
-                    "name": "Owner",
-                    "color": "#ECE5C7",
-                    "weight": 0.7,
-                    "position": {
-                        "w": 0.6,
-                        "h": 0.49
-                    },
-                    "children": []
-                },
-                {
-                    "name": "Email",
-                    "color": "#CDC2AE",
-                    "weight": 0.6,
-                    "position": {
-                        "w": 0.3,
-                        "h": 0.51
-                    },
-                    "children": []
-                }
-            ]
-        },
-        {
-            "name": "Projects",
-            "color": "#ECE5C7",
-            "weight": 0.8,
-            "position": {
-                "w": 0.6,
-                "h": 0.6
-            },
-            "children": [
-                {
-                    "name": "PROJ1",
-                    "color": "#ECE5C7",
-                    "weight": 1,
-                    "position": {
-                        "w": 0.5,
-                        "h": 0.5
-                    },
-                    "children": []
-                },
-                {
-                    "name": "PROJ2",
-                    "color": "#ECE5C7",
-                    "weight": 0.7,
-                    "position": {
-                        "w": 0.6,
-                        "h": 0.49
-                    },
-                    "children": []
-                },
-                {
-                    "name": "PROJ3",
-                    "color": "#CDC2AE",
-                    "weight": 0.6,
-                    "position": {
-                        "w": 0.3,
-                        "h": 0.51
-                    },
-                    "children": []
-                }
-            ]
-        },
-        {
-            "name": "Views",
-            "color": "#CDC2AE",
-            "weight": 0.8,
-            "position": {
-                "w": 0.4,
-                "h": 0.6
-            },
-            "bgImage": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Kittyply_edit1.jpg",
-            "children": [
-                {
-                    "name": "VIEW1",
-                    "color": "#ECE5C7",
-                    "weight": 1,
-                    "position": {
-                        "w": 0.5,
-                        "h": 0.5
-                    },
-                    "children": []
-                },
-                {
-                    "name": "VIEW2",
-                    "color": "#ECE5C7",
-                    "weight": 0.7,
-                    "position": {
-                        "w": 0.6,
-                        "h": 0.49
-                    },
-                    "children": []
-                },
-                {
-                    "name": "VIEW3",
-                    "color": "#CDC2AE",
-                    "weight": 0.6,
-                    "position": {
-                        "w": 0.3,
-                        "h": 0.51
-                    },
-                    "children": []
-                }
-            ]
-        },
-        {
-            "name": "Facts",
-            "color": "#C2DED1",
-            "weight": 0.6,
-            "position": {
-                "w": 0.4,
-                "h": 0.4
-            },
-            "bgImage": "https://images.unsplash.com/photo-1529778873920-4da4926a72c2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=872&q=80",
-            "children": [
-                {
-                    "name": "FACT1",
-                    "color": "#ECE5C7",
-                    "weight": 1,
-                    "position": {
-                        "w": 0.5,
-                        "h": 0.5
-                    },
-                    "children": []
-                },
-                {
-                    "name": "FACT2",
-                    "color": "#ECE5C7",
-                    "weight": 0.7,
-                    "position": {
-                        "w": 0.6,
-                        "h": 0.49
-                    },
-                    "children": []
-                },
-                {
-                    "name": "FACT3",
-                    "color": "#CDC2AE",
-                    "weight": 0.6,
-                    "position": {
-                        "w": 0.3,
-                        "h": 0.51
-                    },
-                    "children": []
-                }
-            ]
-        }
-    ]
-}
+[
+    {
+        "name": "Home",
+        "color": "#354259"
+    },
+    {
+        "name": "Facts",
+        "color": "#354259"
+    },
+    {
+        "name": "Views",
+        "color": "#354259"
+    },
+    {
+        "name": "Projects",
+        "color": "#354259"
+    },
+    {
+        "name": "About",
+        "color": "#354259"
+    },
+    {
+        "name": "View1",
+        "color": "#354259"
+    },
+    {
+        "name": "View2",
+        "color": "#354259"
+    },
+    {
+        "name": "View3",
+        "color": "#354259"
+    },
+    {
+        "name": "Project1",
+        "color": "#354259"
+    },
+    {
+        "name": "Project2",
+        "color": "#354259"
+    },
+    {
+        "name": "Project3",
+        "color": "#354259"
+    },
+    {
+        "name": "About1",
+        "color": "#354259"
+    },
+    {
+        "name": "About2",
+        "color": "#354259"
+    },
+    {
+        "name": "About3",
+        "color": "#354259"
+    },
+    {
+        "name": "Fact1",
+        "color": "#354259"
+    },
+    {
+        "name": "Fact2",
+        "color": "#354259"
+    },
+    {
+        "name": "Fact3",
+        "color": "#354259"
+    }
+]
