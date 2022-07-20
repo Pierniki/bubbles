@@ -2,6 +2,7 @@
   import * as d3 from 'd3';
   import _ from 'lodash';
   import { onMount } from 'svelte';
+  import { navigate } from 'svelte-navigator';
 
   export let links: { source: number; target: number }[];
   export let nodes: { name: string }[];
@@ -9,6 +10,7 @@
   export let height: number;
 
   const r = 120;
+  let firstRerender = true;
 
   const updateLinks = (links: any[]) => {
     var u = d3
@@ -46,10 +48,10 @@
         return d.y;
       })
       .attr('class', function (d) {
-        return 'node-bubble';
+        return 'node-bubble cursor-pointer';
       })
       .on('click', (e, i) => {
-        console.log('clicked', i.name);
+        navigate('/#' + i.name);
       });
 
     d3.select('.nodes')
@@ -69,7 +71,7 @@
         return 5;
       })
       .attr('class', function (d) {
-        return 'node-text';
+        return 'node-text pointer-events-none';
       });
   };
 
@@ -80,7 +82,7 @@
 
   const simulate = ({ width, height, links, nodes }: { width: number; height: number; links: any[]; nodes: any[] }) => {
     d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-1000))
+      .force('charge', d3.forceManyBody().strength(-2000))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force(
         'link',
@@ -98,7 +100,7 @@
 
   const debouncedSimulate = _.debounce(simulate, 500);
 
-  $: debouncedSimulate({ width, height, links, nodes });
+  $: firstRerender ? (firstRerender = false) : debouncedSimulate({ width, height, links, nodes });
 </script>
 
 <svg class="absolute top-0 left-0" {width} {height}><g class="links" /><g class="nodes" /></svg>

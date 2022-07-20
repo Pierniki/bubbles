@@ -14,5 +14,49 @@
     {
         "source": "Home",
         "target": "About"
+    },
+    {
+        "source": "About",
+        "target": "Email"
+    },
+    {
+        "source": "About",
+        "target": "Owner"
+    },
+    {
+        "source": "Facts",
+        "target": "FACT1"
+    },
+    {
+        "source": "Facts",
+        "target": "FACT2"
+    },
+    {
+        "source": "Facts",
+        "target": "FACT3"
+    },
+    {
+        "source": "Projects",
+        "target": "PROJ3"
+    },
+    {
+        "source": "Projects",
+        "target": "PROJ2"
+    },
+    {
+        "source": "Projects",
+        "target": "PROJ1"
+    },
+    {
+        "source": "Views",
+        "target": "View1"
+    },
+    {
+        "source": "Views",
+        "target": "View2"
+    },
+    {
+        "source": "Views",
+        "target": "View3"
     }
 ]
