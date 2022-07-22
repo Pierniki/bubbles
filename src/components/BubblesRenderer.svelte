@@ -2,7 +2,7 @@
   import * as d3 from 'd3';
   import _ from 'lodash';
   import { onMount } from 'svelte';
-  import { navigate } from 'svelte-navigator';
+  import { bubbleStore } from '../stores';
 
   export let links: { source: number; target: number }[];
   export let nodes: { name: string }[];
@@ -35,43 +35,18 @@
   const updateNodes = (nodes: any[]) => {
     const u = d3
       .select('.nodes')
-      .selectAll('circle')
+      .selectAll('div')
+      .attr('pointer-events', 'all')
       .data(nodes)
-      .join('circle')
-      .attr('r', function (d) {
-        return r;
-      })
-      .attr('cx', function (d) {
-        return d.x;
-      })
-      .attr('cy', function (d) {
-        return d.y;
-      })
-      .attr('class', function (d) {
-        return 'node-bubble cursor-pointer';
-      })
-      .on('click', (e, i) => {
-        navigate('/#' + i.name);
-      });
-
-    d3.select('.nodes')
-      .selectAll('text')
-      .data(nodes)
-      .join('text')
-      .text(function (d) {
-        return d.name;
-      })
-      .attr('x', function (d) {
-        return d.x - d.name.length * 11.5;
-      })
-      .attr('y', function (d) {
-        return d.y + 4;
-      })
-      .attr('dy', function (d) {
-        return 5;
-      })
-      .attr('class', function (d) {
-        return 'node-text pointer-events-none';
+      .join('div')
+      .html((d) => {
+        const r = 100;
+        const hasChildren = Boolean($bubbleStore.links.find((link) => link.source === d.name));
+        return `<a class="rounded-full bg-red-600 flex justify-center items-center absolute node duration-200 text-white font-bold text-3xl ${
+          hasChildren ? 'hover:scale-110' : 'cursor-default'
+        }" style="height: ${r * 2}px; width: ${r * 2}px; left: ${d.x - r}px; top: ${d.y - r}px; background: ${
+          d.color
+        }" href="#/${d.name}">${d.name}</div>`;
       });
   };
 
@@ -103,12 +78,12 @@
   $: firstRerender ? (firstRerender = false) : debouncedSimulate({ width, height, links, nodes });
 </script>
 
-<svg class="absolute top-0 left-0" {width} {height}><g class="links" /><g class="nodes" /></svg>
-<div class="absolute node-text" />
+<svg class="absolute top-0 left-0" {width} {height}><g class="links" /></svg>
+<div class="relative nodes" />
 
 <style>
   .links {
-    stroke: #dcd3ee;
+    stroke: lightgray;
     stroke-width: 4px;
   }
 </style>

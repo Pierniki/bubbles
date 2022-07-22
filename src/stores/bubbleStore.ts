@@ -10,7 +10,7 @@ export interface Link {
   target: string;
 }
 
-interface BubbleStore {
+export interface BubbleStore {
   nodes: Node[];
   links: Link[];
 }
@@ -31,7 +31,9 @@ const createBubbleStore = () => {
     }));
     store.update((prev) => ({ ...prev, links }));
   });
-  return { subscribe };
+  return {
+    subscribe
+  };
 };
 
 const fetchNodes = (): Promise<Node[]> => fetch('nodes.json').then((res) => res.json());

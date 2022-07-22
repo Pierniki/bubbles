@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { useLocation } from 'svelte-navigator';
-  import { bubbleStore, Link, Node } from '../stores';
+  import { BubbleStore, bubbleStore, Link, Node } from '../stores';
   import BubblesRenderer from './BubblesRenderer.svelte';
 
-  export let width = 0;
-  export let height = 0;
+  export let params: { name: string };
 
-  const location = useLocation();
+  $: width = 0;
+  $: height = 0;
 
-  $: route = $location.hash.split('#')[1] ?? 'home';
+  $: route = params.name ?? 'home';
 
   $: routeNodes = getNodesByRoute($bubbleStore.nodes, $bubbleStore.links, route);
 
@@ -36,14 +35,33 @@
 
   $: isReady = !isNaN(width) && !isNaN(height) && routeNodes.length > 0 && routeLinks.length > 0;
 
-  // $: console.log($bubbleStore.links, $bubbleStore.nodes, route);
-  // $: console.log(route, routeNodes, routeLinks, isReady);
+  const getNodeParents = (nodeName: string, store: BubbleStore, parents: Node[] = []): Node[] => {
+    const { links, nodes } = store;
 
-  $: console.log(route);
+    const parentLink = links.find((link) => link.target === nodeName);
+    const parentNode = nodes.find((node) => node.name === parentLink?.source);
+    if (parentNode) {
+      parents.push(parentNode);
+      return getNodeParents(parentNode.name, store, parents);
+    }
+    return parents;
+  };
+
+  $: nodeParents = getNodeParents(route, $bubbleStore);
 </script>
 
-{#if isReady}
-  {#key [routeNodes, routeLinks]}
-    <BubblesRenderer {width} {height} nodes={[...routeNodes]} links={[...routeLinks]} />
-  {/key}
-{/if}
+<nav
+  class="h-[100px] border-b-4 border-slate-700 flex items-center justify-start p-8 gap-4 font-bold text-slate-700 text-2xl"
+>
+  {#each nodeParents as parent}
+    <a href={`#/${parent.name}`}>{parent.name} > </a>
+  {/each}
+  <span class="text-slate-300">{route}</span>
+</nav>
+<div bind:clientWidth={width} bind:clientHeight={height} class="h-full w-full">
+  {#if isReady}
+    {#key [routeNodes, routeLinks]}
+      <BubblesRenderer {width} {height} nodes={[...routeNodes]} links={[...routeLinks]} />
+    {/key}
+  {/if}
+</div>

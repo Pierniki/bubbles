@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { Route, Router } from 'svelte-navigator';
+  import Router from 'svelte-spa-router';
   import './app.css';
   import BubblesRendererContainer from './components/BubblesRendererContainer.svelte';
+  import NotFound from './components/NotFound.svelte';
 
-  $: width = 0;
-  $: height = 0;
+  const routes = {
+    '/:name': BubblesRendererContainer,
+    '*': NotFound
+  };
 </script>
 
-<svelte:window bind:innerWidth={width} bind:innerHeight={height} />
-<Router primary={false}>
-  <Route path="/">
-    <BubblesRendererContainer {width} {height} />
-  </Route>
-</Router>
+<div class="flex flex-col h-screen">
+  <Router {routes} />
+</div>
