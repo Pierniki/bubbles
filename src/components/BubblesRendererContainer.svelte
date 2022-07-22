@@ -54,7 +54,7 @@
   class="h-[100px] border-b-4 border-slate-700 flex items-center justify-start p-8 gap-4 font-bold text-slate-700 text-2xl"
 >
   {#each nodeParents as parent}
-    <a href={`#/${parent.name}`}>{parent.name} > </a>
+    <a href={`${import.meta.env.PROD ? '/bubbles' : ''}/#/${parent.name}`}>{parent.name} > </a>
   {/each}
   <span class="text-slate-300">{route}</span>
 </nav>

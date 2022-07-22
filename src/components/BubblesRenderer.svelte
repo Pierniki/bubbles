@@ -42,11 +42,13 @@
       .html((d) => {
         const r = 100;
         const hasChildren = Boolean($bubbleStore.links.find((link) => link.source === d.name));
-        return `<a class="rounded-full bg-red-600 flex justify-center items-center absolute node duration-200 text-white font-bold text-3xl ${
+        return `<${
+          hasChildren ? 'a' : 'span'
+        } class="rounded-full bg-red-600 flex justify-center items-center absolute node duration-200 text-white font-bold text-3xl ${
           hasChildren ? 'hover:scale-110' : 'cursor-default'
         }" style="height: ${r * 2}px; width: ${r * 2}px; left: ${d.x - r}px; top: ${d.y - r}px; background: ${
           d.color
-        }" href="#/${d.name}">${d.name}</div>`;
+        }" href="${import.meta.env.PROD ? '/bubbles' : ''}/#/${d.name}">${d.name}</${hasChildren ? 'a' : 'span'}>`;
       });
   };
 
